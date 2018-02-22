@@ -1,3 +1,19 @@
+Node.js & MySQL BAamazon
+
+UCI Full Stack Web Development 24 week Boot Camp 9/25/17 to 4/7/18
+
+Homework #10 - Basic Assignment
+
+Assigned: 1/08/18
+
+Due: 1/15/18
+
+-----------------------------------------------------------------------------------------------------------------------------------
+
+Using MySql, we were to pull information from the database to create a CLI to update our product database.
+
+There is not much creativity in this. Just working on your skills to be able to get information from the database and update the database afterwards.  This as good CLI practice as well
+
 # Bamazon
 
 Node.js & MySQL
