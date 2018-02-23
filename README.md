@@ -12,7 +12,18 @@ Due: 1/15/18
 
 Using MySql, we were to pull information from the database to create a CLI to update our product database.
 
-There is not much creativity in this. Just working on your skills to be able to get information from the database and update the database afterwards.  This as good CLI practice as well
+There is not much creativity in this. Just good practice at manipulating data from a database using a CLI.
+
+Links for videos to see the app in action
+
+Customer entry screen
+
+https://www.youtube.com/watch?v=KhUjT-46e9Y
+
+
+Manager entry screen
+
+https://www.youtube.com/watch?v=spwIvtA2N7I
 
 # Bamazon
 
