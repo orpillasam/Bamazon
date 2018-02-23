@@ -1,5 +1,17 @@
+CREATE DATABASE bamazon;
+
+USE bamazon;
+
+CREATE TABLE products (
+	item_id INTEGER(10) NOT NULL AUTO_INCREMENT,
+    product_name VARCHAR(50) NULL,
+    department_name VARCHAR(50) NULL,
+    price DECIMAL(10,2) NULL,
+    stock_quantity INT NULL,
+    PRIMARY KEY (item_id)
+    )
     
-INSERT into products (product_name, department, price, stock_quantity)
+INSERT into products (product_name, department_name, price, stock_quantity)
 VALUES 
 ("Nano Ledger", "technology", 59.99, 100),
 ("Nerf Gun", "toys", 19.99, 200),
@@ -15,3 +27,6 @@ VALUES
 
 
 SELECT * FROM products;
+    
+    
+    

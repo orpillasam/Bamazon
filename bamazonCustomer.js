@@ -1,99 +1,109 @@
+// Dependencies
 let mysql = require('mysql');
 let inquirer = require('inquirer');
 
-var connection =mysql.createConnection({
+//MySQL connection
+var connection = mysql.createConnection({
     host: 'localhost',
-    port: 3306,
-
+    port: 3307,
     user: "root",
-
     password: "root",
     database: "bamazon"
 });
 
+//If it connects, then start the app
 connection.connect(function(err) {
     if (err) throw err;
     displayProducts();
 });
 
-
-
-function displayProducts(){
-    connection.query('SELECT * FROM PRODUCTS', function (err, res){
-        if (err) throw err;
-        for (var i = 0; i < res.length; i++) {
-            console.log(" - - - - - - - - - - - - - - - ");
-            console.log("item #: " + res[i].item_id);
-            console.log("item for sale: " + res[i].product_name);
-            console.log("price of item: $" + res[i].price);
-        }
-        buyProduct();
-    });
-
-};
-
-function buyProduct() {
-    inquirer.prompt([{
-        type: "list",
-        name: "buyproduct",
-        message: "Would you like to purchase an item?",
-        choices: ["YES", "NO"]
+// Validating inputs are only positive integers
+function validateNumber(value) {
+    let integer = Number.isInteger(parseFloat(value))
+    let sign = Math.sign(value)
+    if (integer && sign === 1) {
+      return true
+    } else {
+      return 'Please enter a positive number.'
     }
-    ]).then(function (value) {
-        if (value.buyproduct === "YES") {
-            selectProduct()
-        }
-        else if (value.buyproduct === "NO") {
-            console.log("Thank you for shopping with Bamazon!")
-            connection.end();
-        }
-    })
-}
+  }
 
-function selectProduct() {
-    inquirer.prompt([
+  function promptUserPurchase() {
+    inquirer
+      .prompt([
         {
-            type: "input",
-            name: "item_number",
-            message: "What item number would you like to purchase?",
-            validate: function(value) {
-                if (isNaN(value) === false) {
-                  return true;
-                }
-                return false;
-              }          
+          type: 'input',
+          name: 'item_id',
+          message:
+            'Please enter the ID# of the product you wish to purchase.',
+          validate: validateNumber,
+          filter: Number,
         },
         {
-            type: "input",
-            name: "quantity",
-            message: "How many would you like to buy?",
-            validate: function(value) {
-                if (isNaN(value) === false) {
-                  return true;
-                }
-                return false;
-              }
-        }
-    ]).then(function (n) {
-        console.log("Adding product to the shopping cart.\n");
-        connection.query(
-            "UPDATE products SET ? WHERE ?",
-            [
-                {
-                    stock_quantity: n.quantity
-                },
-                {
-                    item_id: n.item_number
-                }
-            ],
-            function(error) {
-                if (error) throw err;
-                console.log("Product has been added to your shopping cart!");
-                console.log("Your total for this item is $")
-                buyProduct();
+          type: 'input',
+          name: 'quantity',
+          message: 'What quantity would you like to purchase?',
+          validate: validateNumber,
+          filter: Number,
+        },
+      ])
+      .then(function(input) {
+        let item = input.item_id
+        let quantity = input.quantity
+  
+        // Querys database to confirm given item ID exists with enough desired quantity
+        let queryStr = 'SELECT * FROM products WHERE ?'
+  
+        connection.query(queryStr, { item_id: item }, function(err, data) {
+          if (err) throw err
+  
+          if (data.length === 0) {
+            console.log('ERROR: Invalid Item ID. Please select a valid Item ID.')
+            displayInventory()
+          } else {
+            let productData = data[0]
+            // Item in stock
+            if (quantity <= productData.stock_quantity) {
+              console.log('In Stock. Placing order now...')
+              let updateQueryStr =
+                'UPDATE products SET stock_quantity = ' +
+                (productData.stock_quantity - quantity) +
+                ' WHERE item_id = ' +
+                item
+              //Inventory update
+              connection.query(updateQueryStr, function(err, data) {
+                if (err) throw err
+                console.log(
+                  'Your order has been placed! Your total is $' +
+                    productData.price * quantity +
+                    '\nThank you for shopping with Bamazon!\n----------------------------------------\n'
+                )
+                connection.end()
+              })
+            } else {
+              console.log(
+                "We're sorry. The quantity you have requested is unavailable.\nPlease modify your order.\n----------------------------------------\n"
+              )
+              displayProducts()
             }
-        )
+          }
+        })
+      })
+  }
+  
+  function displayProducts() {
+    queryStr = 'SELECT * FROM products'
+    connection.query(queryStr, function(err, data) {
+      if (err) throw err
+      let res = ''
+      for (let i = 0; i < data.length; i++) {
+        res = ''
+        res += 'Item ID: ' + data[i].item_id + '\n'
+        res += 'Product Name: ' + data[i].product_name + '\n'
+        res += 'Department: ' + data[i].department + '\n'
+        res += 'Price: $' + parseFloat(data[i].price).toFixed(2) + '\n'
+        console.log(res + '\n----------------------------------------\n')
+      }
+      promptUserPurchase()
     })
-}
-
-
+  }
