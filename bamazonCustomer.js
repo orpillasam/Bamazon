@@ -51,7 +51,6 @@ function validateNumber(value) {
         let item = input.item_id
         let quantity = input.quantity
   
-        // Querys database to confirm given item ID exists with enough desired quantity
         let queryStr = 'SELECT * FROM products WHERE ?'
   
         connection.query(queryStr, { item_id: item }, function(err, data) {
@@ -82,7 +81,7 @@ function validateNumber(value) {
               })
             } else {
               console.log(
-                "We're sorry. The quantity you have requested is unavailable.\nPlease modify your order.\n----------------------------------------\n"
+                "We're sorry. The quantity you ordered is unavailable.\nPlease change your order.\n----------------------------------------\n"
               )
               displayProducts()
             }
@@ -103,6 +102,7 @@ function validateNumber(value) {
         res += 'Department: ' + data[i].department + '\n'
         res += 'Price: $' + parseFloat(data[i].price).toFixed(2) + '\n'
         console.log(res + '\n----------------------------------------\n')
+        
       }
       promptUserPurchase()
     })
