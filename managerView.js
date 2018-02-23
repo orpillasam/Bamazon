@@ -2,16 +2,32 @@
 let inquirer = require('inquirer')
 let mysql = require('mysql')
 
-//MySql connection
-let connection = mysql.createConnection({
+//MySQL connection
+var connection = mysql.createConnection({
   host: 'localhost',
-  port: 8889,
-  user: 'root',
-  password: 'root',
-  database: 'bamazon',
-})
+  port: 3307,
+  user: "root",
+  password: "root",
+  database: "bamazon"
+});
+//If it connects, then start the app
+connection.connect(function(err) {
+  if (err) throw err;
+  runManagerFunction();
+});
 
-function managerAction() {
+// Validating inputs are only positive integers
+function validateNumber(value) {
+  let integer = Number.isInteger(parseFloat(value))
+  let sign = Math.sign(value)
+  if (integer && sign === 1) {
+    return true
+  } else {
+    return 'Please enter a positive number.'
+  }
+}
+
+function runManagerFunction() {
   inquirer
     .prompt([
       {
@@ -70,7 +86,7 @@ function managerAction() {
     })
 }
 
-// Retrieves current inventory from database
+// Pulls inventory from the Database
 function displayInventory() {
   queryStr = 'SELECT * FROM products'
 
@@ -93,16 +109,16 @@ function displayInventory() {
   })
 }
 
-// displayLow Inventory dislays a list of products where inventory is below 10
+// shows inventory that is below 5
 
 function displayLowInventory() {
-  queryStr = 'SELECT * FROM products WHERE stock_quantity < 10'
+  queryStr = 'SELECT * FROM products WHERE stock_quantity < 5'
 
   connection.query(queryStr, function (err, data) {
     if (err) throw err
 
     console.log(
-      'Low Inventory (quantity below 10) \n----------------------------------------\n'
+      'Low Inventory (quantity below 5) \n----------------------------------------\n'
     )
 
     let res = ''
@@ -118,18 +134,6 @@ function displayLowInventory() {
   })
 }
 
-// Ensures user is supplying only positive integers
-function validateInteger(value) {
-  let integer = Number.isInteger(parseFloat(value))
-  let sign = Math.sign(value)
-
-  if (integer && sign === 1) {
-    return true
-  } else {
-    return 'Please enter a whole non-zero number'
-  }
-}
-
 function validateNumeric(value) {
   let number = typeof parseFloat(value) === 'number'
   let positive = parseFloat(value) > 0
@@ -141,7 +145,7 @@ function validateNumeric(value) {
   }
 }
 
-//This will add inventory to existing items
+//adds inventory
 function addInventory() {
   inquirer
     .prompt([
@@ -149,14 +153,14 @@ function addInventory() {
         type: 'input',
         name: 'item_id',
         message: 'Please enter the item Id for stock quantity update',
-        validate: validateInteger,
+        validate: validateNumber,
         filter: Number,
       },
       {
         type: 'input',
         name: 'quantity',
         message: 'How many would you like to add?',
-        validate: validateInteger,
+        validate: validateNumber,
         filter: Number,
       },
     ])
@@ -195,31 +199,31 @@ function addInventory() {
     })
 }
 
-// Guides user to adding a new product to the database
+// function to create a new product
 function createNewProduct() {
   inquirer
     .prompt([
       {
         type: 'input',
         name: 'product_name',
-        message: 'Please enter the new product name:',
+        message: 'Enter the product name.',
       },
       {
         type: 'input',
         name: 'department_name',
-        message: 'Please enter the department this product belongs to',
+        message: 'Which department is this for?',
       },
       {
         type: 'input',
         name: 'price',
-        message: 'What is the price per unit?',
+        message: 'Enter the price.',
         validate: validateNumeric,
       },
       {
         type: 'input',
         name: 'stock_quantity',
-        message: 'How many items are being stocked?',
-        validate: validateInteger,
+        message: 'Enter the quantity',
+        validate: validateNumber,
       },
     ])
     .then(function (input) {
@@ -249,7 +253,7 @@ function createNewProduct() {
         function (err, results, fields) {
           if (err) throw err
           console.log(
-            'New product has been added to the inventory under Item ID ' +
+            'A new product has been entered with this ID ' +
             results.insertId +
             '.\n----------------------------------------\n'
           )
@@ -259,9 +263,3 @@ function createNewProduct() {
     })
 }
 
-// Runs main app logic
-function runBamazon() {
-  managerAction()
-}
-
-runBamazon()
