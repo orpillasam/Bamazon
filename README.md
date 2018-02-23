@@ -2,7 +2,7 @@ Node.js & MySQL BAamazon
 
 UCI Full Stack Web Development 24 week Boot Camp 9/25/17 to 4/7/18
 
-Homework #10 - Basic Assignment
+Homework #12 
 
 Assigned: 1/08/18
 
